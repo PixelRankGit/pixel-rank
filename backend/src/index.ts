@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const gamesRouter = require('./routes/games.routes');
+const usersRouter = require('./routes/users.routes');
 const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
 
@@ -32,5 +33,6 @@ popularBanco();
 app.use(express.json());
 
 app.use('/api', gamesRouter);
+app.use('/api', usersRouter);
 
 module.exports = app;
