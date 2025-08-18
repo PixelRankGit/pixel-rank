@@ -21,11 +21,24 @@ model User {
   password  String
   posts     Post[]
   gameLists GameList[]
-  likes     PostLike[]  
+  likes     PostLike[]
+  following UserFollow[] @relation("Following")
+  followers UserFollow[] @relation("Followers")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([username])
+}
+
+model UserFollow {
+  id         String @id @default(uuid())
+  followerId String
+  followingId String
+
+  follower   User  @relation("Following", fields: [followerId], references: [id])
+  following  User  @relation("Followers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
 }
 
 model Post {
