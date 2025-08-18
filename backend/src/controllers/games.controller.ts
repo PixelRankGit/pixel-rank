@@ -1,11 +1,11 @@
 import clienteRedis from "../utils/clienteRedis";
-const prisma = require('../prisma/prisma');
+const prisma = require('../prisma/prisma').default;
 import { Request, Response } from "express";
 
-type Game = {
-  name: string;
+type Jogo = {
+  nome: string;
   steamId: number;
-  imageUrl: string;
+  caminhoImagem: string;
 };
 
 export const getGames = async (req: Request, res: Response) => {
@@ -15,35 +15,36 @@ export const getGames = async (req: Request, res: Response) => {
     console.warn('Chave de cache não definida, não será salvo no Redis.');
   }
 
-  const games = await prisma.game.findMany({
+  const jogos = await prisma.jogo.findMany({
     where: {
-      name: { contains: query, mode: "insensitive" },
+      nome: { contains: query as string, mode: "insensitive" },
     },
     select: {
-      name: true,
-      steamId: true
+      nome: true,
+      steamId: true,
+      caminhoImagem: true
     },
     take: 200,
   });
 
-  const gamesWithImage: Game[] = games.map((game: Game) => ({
-    name: game.name,
-    steamId: game.steamId,
-    imageUrl: `https://cdn.akamai.steamstatic.com/steam/apps/${game.steamId}/header.jpg`
+  const jogosComImagem: Jogo[] = jogos.map((jogo: any) => ({
+    nome: jogo.nome,
+    steamId: jogo.steamId,
+    caminhoImagem: `https://cdn.akamai.steamstatic.com/steam/apps/${jogo.steamId}/header.jpg`
   }));
 
-  if (gamesWithImage.length > 0 && key) {
+  if (jogosComImagem.length > 0 && key) {
     try {
-      await clienteRedis.setEx(key, 3600, JSON.stringify(gamesWithImage));
+      await clienteRedis.setEx(key, 3600, JSON.stringify(jogosComImagem));
       console.log(`Cache salvo no Redis para a chave: ${key}`);
     } catch (err) {
       console.error('Erro ao salvar no Redis:', err);
     }
   } else {
-    if (gamesWithImage.length === 0) {
+    if (jogosComImagem.length === 0) {
       console.log('Nenhum jogo encontrado, cache não salvo.');
     }
   }
 
-  res.json(gamesWithImage);
+  res.json(jogosComImagem);
 };

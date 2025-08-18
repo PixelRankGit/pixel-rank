@@ -1,6 +1,6 @@
 const express = require('express');
 const clienteRedis = require('../utils/clienteRedis');
-const prisma = require('../prisma/prisma');
+const prisma = require('../prisma/prisma').default;
 
 const router = express.Router();
 
@@ -22,20 +22,6 @@ async function cacheGame(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-router.get('/games', cacheGame, getGames, async (req: Request, res: Response) => {
-  const { query } = req.query;
-  const key = res.locals.cacheKey;
-
-  const games = await prisma.game.findMany({
-    where: {
-      name: { contains: query || '', mode: 'insensitive' },
-    },
-    take: 200
-  });
-
-  if (key) await clienteRedis.setEx(key, 3600, JSON.stringify(games));
-
-  res.json(games);
-});
+router.get('/games', cacheGame, getGames);
 
 module.exports = router;

@@ -1,17 +1,17 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const gamesRouter = require('./routes/games.routes');
-const prisma = require('./prisma/prisma');
+const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
 
 async function popularBanco(): Promise<void> {
     try {
-        const contagemJogos = await prisma.game.count();
+        const contagemJogos = await prisma.jogo.count();
         console.log(`Jogos no banco: ${contagemJogos}`);
 
         if (contagemJogos <= 100) {
             console.log('Limpando tabela de jogos...');
-            await prisma.game.deleteMany({});
+            await prisma.jogo.deleteMany({});
             console.log('Tabela limpa. Importando jogos da Steam...');
             await pegarJogosSteam();
             console.log('Importação finalizada!');

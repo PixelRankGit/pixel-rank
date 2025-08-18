@@ -1,5 +1,5 @@
 require('dotenv').config();
-const prisma = require('../prisma/prisma');
+const prisma = require('../prisma/prisma').default;
 
 type SteamApp = {
   appid: number;
@@ -24,20 +24,20 @@ async function pegarJogosSteam() {
       const batch = validApps.slice(i, i + 100);
 
       const steamIds = batch.map(app => app.appid);
-      const existentes = await prisma.game.findMany({
+      const existentes = await prisma.jogo.findMany({
         where: { steamId: { in: steamIds } },
         select: { steamId: true }
       });
       const existentesSet = new Set(existentes.map((g: { steamId: number }) => g.steamId));
 
       const novos = batch.filter(app => !existentesSet.has(app.appid)).map(app => ({
-        name: app.name,
+        nome: app.name,
         steamId: app.appid,
-        imagePath: `https://cdn.cloudflare.steamstatic.com/steam/apps/${app.appid}/header.jpg`,
+        caminhoImagem: `https://cdn.cloudflare.steamstatic.com/steam/apps/${app.appid}/header.jpg`,
       }));
 
       if (novos.length > 0) {
-        await prisma.game.createMany({ data: novos, skipDuplicates: true });
+        await prisma.jogo.createMany({ data: novos, skipDuplicates: true });
         console.log(`Batch ${i / 100 + 1}: ${novos.length} jogos adicionados.`);
       } else {
         console.log(`Batch ${i / 100 + 1}: Nenhum novo jogo para adicionar.`);

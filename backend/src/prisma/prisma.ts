@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 
 declare global {
   var prisma: undefined | InstanceType<typeof PrismaClient>;
 }
 
-let prisma;
+let prisma: any;
 
 if (!global.prisma) {
   prisma = new PrismaClient();
@@ -13,4 +13,4 @@ if (!global.prisma) {
   prisma = global.prisma;
 }
 
-module.exports = prisma;
+export default prisma;
