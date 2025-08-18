@@ -5,7 +5,7 @@ const usersRouter = require('./routes/users.routes');
 const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
 
-async function popularBanco(): Promise<void> {
+export async function popularBanco(): Promise<void> {
     try {
         const contagemJogos = await prisma.jogo.count();
         console.log(`Jogos no banco: ${contagemJogos}`);
@@ -35,4 +35,4 @@ app.use(express.json());
 app.use('/api', gamesRouter);
 app.use('/api', usersRouter);
 
-module.exports = app;
+export default app;
