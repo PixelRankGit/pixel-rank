@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -14,77 +14,92 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  posts     Post[]
-  gameLists GameList[]
-  likes     PostLike[]   // adicionando relação com likes
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Usuario {
+  id          String        @id @default(uuid()) @db.VarChar(50)
+  nome        String        @unique
+  email       String        @unique
+  senha       String
+  posts       Postagem[]
+  listas      ListaJogo[]
+  curtidas    CurtidaPost[]
+  seguindo    Seguidor[]    @relation("Seguindo")
+  seguidores  Seguidor[]    @relation("Seguidores")
+  criadoEm    DateTime      @default(now())
+  atualizadoEm DateTime     @updatedAt
+
+  @@index([nome])
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  content   String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  games     PostGame[]
-  likes     PostLike[]   // posts podem ter vários likes
+model Seguidor {
+  id          String   @id @default(uuid()) @db.VarChar(50)
+  seguidorId  String
+  seguindoId  String
+
+  seguidor    Usuario  @relation("Seguindo", fields: [seguidorId], references: [id])
+  seguindo    Usuario  @relation("Seguidores", fields: [seguindoId], references: [id])
+
+  @@unique([seguidorId, seguindoId])
 }
 
-model PostLike {
-  id     Int  @id @default(autoincrement())
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
-  post   Post @relation(fields: [postId], references: [id])
-  postId Int
-
-  @@unique([userId, postId])  // garante que um usuário só pode curtir um post uma vez
+model Postagem {
+  id          String         @id @default(uuid()) @db.VarChar(50)
+  conteudo    String
+  usuario     Usuario        @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  criadoEm    DateTime       @default(now())
+  atualizadoEm DateTime      @updatedAt
+  jogos       PostagemJogo[]
+  curtidas    CurtidaPost[]  
 }
 
-model Game {
-  id          Int      @id @default(autoincrement())
-  name        String
-  platform    String?
-  releaseYear Int?
-  genre       String?
-  posts       PostGame[]
-  gameLists   GameListGame[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model CurtidaPost {
+  id          String      @id @default(uuid()) @db.VarChar(50)
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  postagem    Postagem    @relation(fields: [postagemId], references: [id])
+  postagemId  String
+
+  @@unique([usuarioId, postagemId])
 }
 
-model GameList {
-  id        Int      @id @default(autoincrement())
-  name      String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  games     GameListGame[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Jogo {
+  id            String           @id @default(uuid()) @db.VarChar(50)
+  nome          String
+  steamId       Int              @unique
+  caminhoImagem String
+  postagens     PostagemJogo[]
+  listas        ListaJogoJogo[]
+  criadoEm      DateTime         @default(now())
+  atualizadoEm  DateTime         @updatedAt
+  @@index([nome])
 }
 
-model PostGame {
-  id     Int  @id @default(autoincrement())
-  post   Post @relation(fields: [postId], references: [id])
-  postId Int
-  game   Game @relation(fields: [gameId], references: [id])
-  gameId Int
-
-  @@unique([postId, gameId])
+model ListaJogo {
+  id          String         @id @default(uuid()) @db.VarChar(50)
+  nome        String
+  usuario     Usuario        @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  jogos       ListaJogoJogo[]
+  criadoEm    DateTime       @default(now())
+  atualizadoEm DateTime      @updatedAt
 }
 
-model GameListGame {
-  id        Int      @id @default(autoincrement())
-  gameList  GameList @relation(fields: [gameListId], references: [id])
-  gameListId Int
-  game      Game     @relation(fields: [gameId], references: [id])
-  gameId    Int
+model PostagemJogo {
+  id          String      @id @default(uuid()) @db.VarChar(50)
+  postagem    Postagem    @relation(fields: [postagemId], references: [id])
+  postagemId  String
+  jogo        Jogo        @relation(fields: [jogoId], references: [id])
+  jogoId      String
 
-  @@unique([gameListId, gameId])
+  @@unique([postagemId, jogoId])
+}
+
+model ListaJogoJogo {
+  id           String      @id @default(uuid()) @db.VarChar(50)
+  listaJogo    ListaJogo   @relation(fields: [listaJogoId], references: [id])
+  listaJogoId  String
+  jogo         Jogo        @relation(fields: [jogoId], references: [id])
+  jogoId       String
+
+  @@unique([listaJogoId, jogoId])
 }

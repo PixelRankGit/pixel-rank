@@ -1,0 +1,38 @@
+const express = require('express');
+const dotenv = require('dotenv');
+const gamesRouter = require('./routes/games.routes');
+const usersRouter = require('./routes/users.routes');
+const prisma = require('./prisma/prisma').default;
+const pegarJogosSteam = require('./scripts/pegarJogosSteam');
+
+export async function popularBanco(): Promise<void> {
+    try {
+        const contagemJogos = await prisma.jogo.count();
+        console.log(`Jogos no banco: ${contagemJogos}`);
+
+        if (contagemJogos <= 100) {
+            console.log('Limpando tabela de jogos...');
+            await prisma.jogo.deleteMany({});
+            console.log('Tabela limpa. Importando jogos da Steam...');
+            await pegarJogosSteam();
+            console.log('Importação finalizada!');
+        } else {
+            console.log('Banco já populado. Nenhuma ação necessária.');
+        }
+    } catch (err) {
+        console.error('Erro ao popular banco:', err);
+    }
+}
+
+dotenv.config();
+
+const app = express();
+
+popularBanco();
+
+app.use(express.json());
+
+app.use('/api', gamesRouter);
+app.use('/api', usersRouter);
+
+export default app;
