@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
-import { getUserById, getUserByNome } from "../controllers/users.contoller";
+import { getUserById, getUserByNome, createUser, attUser, desativarUser} from "../controllers/users.contoller";
 
 router.get('/usuarios/:id', getUserById);
 
-router.get('/usuarios/', getUserByNome)
+router.get('/usuarios/', getUserByNome);
+
+router.post('/usuarios/', createUser);
+
+router.patch('/usuarios/:id', attUser);
+
+router.patch('/usuarios/:id/desativar', desativarUser);
 
 module.exports = router;
 

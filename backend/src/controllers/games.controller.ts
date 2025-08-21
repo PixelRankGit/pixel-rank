@@ -1,8 +1,10 @@
+import { Jogo } from "@prisma/client";
 import clienteRedis from "../utils/clienteRedis";
 const prisma = require('../prisma/prisma').default;
 import { Request, Response } from "express";
+import { Optional } from "@prisma/client/runtime/library";
 
-export const getGames = async (req: Request, res: Response) => {
+export const getGames = async (req: Request, res: Response): Promise<void> => {
   const { nome } = req.query;
   const key = res.locals.cacheKey;
   if (!key) {
@@ -10,7 +12,7 @@ export const getGames = async (req: Request, res: Response) => {
   }
 
 
-  const jogos = await prisma.jogo.findMany({
+  const jogos: Jogo[] = await prisma.jogo.findMany({
     where: nome ? {
       nome: { contains: nome as string, mode: "insensitive" },
     } : {},
@@ -23,7 +25,7 @@ export const getGames = async (req: Request, res: Response) => {
     take: 200,
   });
 
-  const jogosComImagem = jogos.map((jogo: any) => ({
+  const jogosComImagem = jogos.map((jogo: Jogo): Optional<Jogo> => ({
     id: jogo.id,
     nome: jogo.nome,
     steamId: jogo.steamId,
@@ -46,12 +48,13 @@ export const getGames = async (req: Request, res: Response) => {
   res.json(jogosComImagem);
 };
 
-export const getGameById = async (req: Request, res: Response) => {
+export const getGameById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   try {
     const jogo = await prisma.jogo.findUnique({ where: { id } });
     if (!jogo) {
-      return res.status(404).json({ message: 'Jogo não encontrado' });
+        res.status(404).json({ message: 'Jogo não encontrado' });
+      return;
     }
     res.json(jogo);
   } catch (error) {
@@ -59,10 +62,11 @@ export const getGameById = async (req: Request, res: Response) => {
   }
 };
 
-export const createGame = async (req: Request, res: Response) => {
+export const createGame = async (req: Request, res: Response): Promise<void> => {
   const { nome, steamId, caminhoImagem } = req.body;
   if (!nome || !steamId || !caminhoImagem) {
-    return res.status(400).json({ message: 'Campos obrigatórios: nome, steamId, caminhoImagem' });
+      res.status(400).json({ message: 'Campos obrigatórios: nome, steamId, caminhoImagem' });
+    return;
   }
   try {
     const novoJogo = await prisma.jogo.create({
@@ -74,7 +78,7 @@ export const createGame = async (req: Request, res: Response) => {
   }
 };
 
-export const updateGameById = async (req: Request, res: Response) => {
+export const updateGameById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
   const { nome, steamId, caminhoImagem } = req.body;
   try {
@@ -88,9 +92,8 @@ export const updateGameById = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteGameById = async (req: Request, res: Response) => {
+export const deleteGameById = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
-
   try {
     await prisma.jogo.delete({where: {id}});
     res.status(204).send();

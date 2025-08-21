@@ -19,11 +19,13 @@ model Usuario {
   nome        String        @unique
   email       String        @unique
   senha       String
+  ativo       Boolean?
   posts       Postagem[]
   listas      ListaJogo[]
   curtidas    CurtidaPost[]
   seguindo    Seguidor[]    @relation("Seguindo")
   seguidores  Seguidor[]    @relation("Seguidores")
+  naoAtivoDesde DateTime?
   criadoEm    DateTime      @default(now())
   atualizadoEm DateTime     @updatedAt
 
