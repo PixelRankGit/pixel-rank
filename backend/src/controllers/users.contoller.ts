@@ -5,7 +5,6 @@ const saltRounds: number = 10;
 
 import { Usuario } from "@prisma/client";
 import { Optional } from "@prisma/client/runtime/library";
-import { error } from "console";
 import { Request, Response } from "express";
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
@@ -72,7 +71,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
         }
 		const senhaHash = await bcrypt.hash(senha, saltRounds);
 		const novoUser = await prisma.usuario.create({
-			data: { nome, email, senha: senhaHash}
+			data: { nome, email, senha: senhaHash, ativo: true}
 		});
 		res.status(201).json({ message: `O Usuário ${nome} foi adicionado`});
 	} catch (error){
@@ -136,7 +135,94 @@ export const attUser = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const desativarUser = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const { senha } = req.body;
 
+    if (!senha) {
+        res.status(400).json({ message: 'É necessário informar a senha!' });
+        return;
+    }
+    try {
+        const usuario = await prisma.usuario.findUnique({ where: { id } });
+        if (!usuario) {
+            res.status(404).json({ message: 'Usuário não encontrado' });
+            return;
+        }
+        if (usuario.ativo === false) {
+            res.status(400).json({ message: 'Usuário já está desativado' });
+            return;
+        }
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        if (!senhaValida) {
+            res.status(401).json({ message: 'Senha incorreta' });
+            return;
+        }
+        await prisma.usuario.update({
+            where: { id },
+            data: {
+                ativo: false,
+                naoAtivoDesde: new Date()
+            }
+        });
+        res.status(200).json({ message: 'Usuário desativado com sucesso' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao desativar usuário', error });
+    }
+};
+
+export const getDataExpiracao = async (req: Request, res: Response): Promise<void> => {
+	const { id } = req.params;
+	try {
+		const usuario: Optional<Usuario> = await prisma.usuario.findUnique({
+			where: { id },
+			select: { naoAtivoDesde: true}
+		});
+
+		if (!usuario) {
+			res.status(404).json({ message: "Usuário não encontrado"});
+			return;
+		}
+
+		res.status(200).json({ dataExpiracao: usuario.naoAtivoDesde})
+	} catch (error) {
+		res.status(500).json({ message: `Erro ao buscar data ${error}`});
+	}
+};
+
+export const ativarUser = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const { senha } = req.body;
+
+    if (!senha) {
+        res.status(400).json({ message: 'É necessário informar a senha!' });
+        return;
+    }
+    try {
+        const usuario = await prisma.usuario.findUnique({ where: { id } });
+        if (!usuario) {
+            res.status(404).json({ message: 'Usuário não encontrado' });
+            return;
+        }
+        if (usuario.ativo === true) {
+            res.status(400).json({ message: 'Usuário já está ativado' });
+            return;
+        }
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        if (!senhaValida) {
+            res.status(401).json({ message: 'Senha incorreta' });
+            return;
+        }
+        await prisma.usuario.update({
+            where: { id },
+            data: {
+                ativo: true,
+                naoAtivoDesde: null
+            }
+        });
+        res.status(200).json({ message: 'Usuário ativado com sucesso' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erro ao ativar usuário', error });
+    }
 };
 
 

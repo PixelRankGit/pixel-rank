@@ -2,6 +2,8 @@ export type Usuario = {
 	id: string;
 	nome: string;
 	email: string;
+	ativo?: boolean
+	naoAtivoDesde: string;
 	criadoEm: string;
 	atualizadoEm: string;
 };
