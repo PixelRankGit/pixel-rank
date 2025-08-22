@@ -11,6 +11,4 @@ clienteRedis.on('error', (err: Error) => console.log('Redis Client Error', err))
   console.log('Redis conectado');
 })();
 
-export default clienteRedis
-
-module.exports = clienteRedis;
+export default clienteRedis;

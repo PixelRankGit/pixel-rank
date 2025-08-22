@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
+import cors from 'cors';
 
 const opcoesSwagger = {
   swaggerDefinition: {
@@ -26,6 +27,8 @@ dotenv.config();
 import app from './index';
 
 const port = process.env.PORT || 3000;
+
+app.use(cors());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

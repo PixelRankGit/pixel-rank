@@ -6,6 +6,9 @@ import loginRouter from './routes/login.routes';
 import postRouter from './routes/post.routes';
 import gamesRouter from './routes/games.routes';
 import cookieParser from 'cookie-parser';
+import genericRouter from './routes/generic.routes';
+
+import cors from 'cors';
 
 const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
@@ -35,6 +38,8 @@ const app = express();
 
 popularBanco();
 
+app.use(cors());
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -42,5 +47,6 @@ app.use('/api', gamesRouter);
 app.use('/api', usersRouter);
 app.use('/api', loginRouter);
 app.use('/api', postRouter);
+app.use('/api', genericRouter)
 
 export default app;

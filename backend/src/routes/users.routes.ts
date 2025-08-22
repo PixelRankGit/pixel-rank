@@ -14,7 +14,7 @@ router.get('/usuarios/:id', getUserById);
 
 router.get('/usuarios/', getUserByNome);
 
-router.get('/usuarios/:id', getDataExpiracao);
+router.get('/usuarios/data/:id', getDataExpiracao);
 
 router.post('/usuarios/', createUser);
 

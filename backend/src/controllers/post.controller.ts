@@ -21,23 +21,51 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
                     where: { seguidorId: userId },
                     select: { seguindoId: true }
                 }) || [];
+
                 const amigosIds = amigos.map(a => a.seguindoId);
-                const postsAmigos: Array<Postagem> = await prisma.postagem.findMany({
+
+                const postsAmigos: Array<any> = await prisma.postagem.findMany({
                     where: { usuarioId: { in: amigosIds } },
                     orderBy: { criadoEm: 'desc' },
-                    take: 60
+                    take: 60,
+                    include: {
+                        _count: {
+                            select: { curtidas: true }
+                        }
+                    }
                 });
-                const postsUsuario: Array<Postagem> = await prisma.postagem.findMany({
+
+                const postsUsuario: Array<any> = await prisma.postagem.findMany({
                     where: { usuarioId: userId },
                     orderBy: { criadoEm: 'desc' },
-                    take: 20
+                    take: 20,
+                    include: {
+                        _count: {
+                            select: { curtidas: true }
+                        }
+                    }
                 });
-                const posts = [...postsAmigos, ...postsUsuario];
+
+                const posts = [...postsAmigos, ...postsUsuario].map(({ _count, ...rest }) => ({
+                    ...rest,
+                    qtCurtidas: _count.curtidas
+                }));
+
                 res.status(200).json(posts);
                 return;
             }
         }
-    const postsAleatorios: Optional<Postagem[]> = await prisma.$queryRaw`SELECT * FROM "Postagem" ORDER BY RANDOM() LIMIT 80`;
+    const postsAleatorios = await prisma.$queryRaw<
+    Array<Postagem & { qtCurtidas: number }>
+
+    >   `SELECT p.*, 
+            (SELECT COUNT(*) 
+            FROM "CurtidaPost" c 
+            WHERE c."postagemId" = p.id) as "qtCurtidas"
+    FROM "Postagem" p
+    ORDER BY RANDOM()
+    LIMIT 80`;
+
         if (!postsAleatorios || postsAleatorios.length === 0) {
             res.status(404).json({ message: 'Nenhum post encontrado' });
             return;
@@ -92,4 +120,122 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
     }
 };
 
-export default { getPosts, createPost };
+export const curtirPost = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const token = req.cookies?.token;
+
+    if (!token){
+        res.status(401).json({ message: 'Você não está autenticado' });
+        return;
+    }
+
+    try {
+        const secret: string = process.env.JWT_SECRET as string;
+        const payload = jwt.verify(token, secret) as { userId: string };
+        const userId: string = payload.userId;
+
+        const postagem: Optional<Postagem> = await prisma.postagem.findUnique({
+            where: { id: id }
+        });
+
+        if (!postagem){
+            res.status(404).json({ message: 'Postagem não encontrada' });
+            return;
+        }
+
+        const usuario: Optional<Usuario> = await prisma.usuario.findUnique({
+            where: { id: userId }
+        });
+
+        if (!usuario){
+            res.status(404).json({ message: 'Usuário não encontrado' });
+            return;
+        }
+
+        const jaCurtiu: Optional<boolean> = await prisma.CurtidaPost.findFirst({
+            where: {
+                postagemId: id,
+                usuarioId: userId
+            }
+        });
+
+        if (jaCurtiu){
+            res.status(400).json({ message: 'Você já curtiu essa postagem' });
+            return;
+        }
+
+        await prisma.CurtidaPost.create({
+            data: {
+                postagemId: id,
+                usuarioId: userId
+            }
+        });
+        res.status(200).json({ message: 'Postagem curtida com sucesso' });
+        return;
+
+
+    } catch (error){
+        res.status(500).json({ message: `Erro ao curtir postagem: ${error}`});
+        return;
+    }
+}
+
+export const descurtirPost = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const token = req.cookies?.token;
+
+    if (!token){
+        res.status(401).json({ message: 'Você não está autenticado' });
+        return;
+    }
+
+    try {
+        const secret: string = process.env.JWT_SECRET as string;
+        const payload = jwt.verify(token, secret) as { userId: string };
+        const userId: string = payload.userId;
+
+        const postagem: Optional<Postagem> = await prisma.postagem.findUnique({
+            where: { id: id }
+        });
+
+        if (!postagem){
+            res.status(404).json({ message: 'Postagem não encontrada' });
+            return;
+        }
+
+        const usuario: Optional<Usuario> = await prisma.usuario.findUnique({
+            where: { id: userId }
+        });
+
+        if (!usuario){
+            res.status(404).json({ message: 'Usuário não encontrado' });
+            return;
+        }
+
+        const jaCurtiu: Optional<boolean> = await prisma.CurtidaPost.findFirst({
+            where: {
+                postagemId: id,
+                usuarioId: userId
+            }
+        });
+
+        if (!jaCurtiu){
+            res.status(400).json({ message: 'Você ainda não curtiu essa postagem' });
+            return;
+        }
+
+        await prisma.CurtidaPost.deleteMany({
+            where: {
+                postagemId: id,
+                usuarioId: userId
+            }
+        });
+        res.status(200).json({ message: 'Postagem descurtida com sucesso' });
+        return;
+    } catch (error) {
+        res.status(500).json({ message: `Erro ao descurtir postagem: ${error}`});
+        return;
+    }
+};
+
+export default { getPosts, createPost, curtirPost, descurtirPost };

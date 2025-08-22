@@ -30,6 +30,7 @@ model Usuario {
   atualizadoEm DateTime     @updatedAt
 
   @@index([nome])
+  @@index([id])
 }
 
 model Seguidor {
@@ -51,7 +52,9 @@ model Postagem {
   criadoEm    DateTime       @default(now())
   atualizadoEm DateTime      @updatedAt
   jogos       PostagemJogo[]
-  curtidas    CurtidaPost[]  
+  curtidas    CurtidaPost[]
+
+  @@index([id])
 }
 
 model CurtidaPost {
@@ -74,6 +77,7 @@ model Jogo {
   criadoEm      DateTime         @default(now())
   atualizadoEm  DateTime         @updatedAt
   @@index([nome])
+  @@index([id])
 }
 
 model ListaJogo {
