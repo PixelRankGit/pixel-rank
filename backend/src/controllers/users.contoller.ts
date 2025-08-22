@@ -198,7 +198,7 @@ export const ativarUser = async (req: Request, res: Response): Promise<void> => 
         return;
     }
     try {
-        const usuario = await prisma.usuario.findUnique({ where: { id } });
+        const usuario: Optional<Usuario> = await prisma.usuario.findUnique({ where: { id } });
         if (!usuario) {
             res.status(404).json({ message: 'Usuário não encontrado' });
             return;
@@ -207,7 +207,7 @@ export const ativarUser = async (req: Request, res: Response): Promise<void> => 
             res.status(400).json({ message: 'Usuário já está ativado' });
             return;
         }
-        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        const senhaValida: boolean = await bcrypt.compare(senha, usuario.senha);
         if (!senhaValida) {
             res.status(401).json({ message: 'Senha incorreta' });
             return;
@@ -220,8 +220,10 @@ export const ativarUser = async (req: Request, res: Response): Promise<void> => 
             }
         });
         res.status(200).json({ message: 'Usuário ativado com sucesso' });
+		return;
     } catch (error) {
         res.status(500).json({ message: 'Erro ao ativar usuário', error });
+		return;
     }
 };
 

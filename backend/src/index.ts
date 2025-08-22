@@ -1,7 +1,10 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
 const gamesRouter = require('./routes/games.routes');
 const usersRouter = require('./routes/users.routes');
+const loginRouter = require('./routes/login.routes');
+
 const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
 
@@ -34,5 +37,6 @@ app.use(express.json());
 
 app.use('/api', gamesRouter);
 app.use('/api', usersRouter);
+app.use('/api', loginRouter);
 
 export default app;

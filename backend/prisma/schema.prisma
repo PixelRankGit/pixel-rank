@@ -105,3 +105,10 @@ model ListaJogoJogo {
 
   @@unique([listaJogoId, jogoId])
 }
+
+model Admin {
+  id String @id @default(uuid()) @db.VarChar(50)
+  email String @unique
+  senha String
+  criadoEm DateTime @default(now())
+}

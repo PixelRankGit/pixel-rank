@@ -6,7 +6,7 @@ type SteamApp = {
   name: string;
 };
 
-async function pegarJogosSteam() {
+async function pegarJogosSteam(): Promise<void> {
   try {
     console.log('Buscando jogos da Steam...');
     
