@@ -1,6 +1,6 @@
 const prisma = require('../prisma/prisma').default;
 
-import { Postagem, Seguidor, Usuario } from "@prisma/client";
+import { Jogo, Postagem, Seguidor, Usuario } from "@prisma/client";
 import { Optional } from "@prisma/client/runtime/library";
 import { Request, Response } from "express";
 import jwt from 'jsonwebtoken';
@@ -8,71 +8,78 @@ import jwt from 'jsonwebtoken';
 export const getPosts = async (req: Request, res: Response): Promise<void> => {
     try {
         const token = req.cookies?.token;
+        let userId: string | undefined = undefined;
+
+        // Se houver token, tenta pegar o userId
         if (token) {
-            const secret = process.env.JWT_SECRET as string;
-            let userId: string | undefined = undefined;
             try {
+                const secret = process.env.JWT_SECRET as string;
                 const payload = jwt.verify(token, secret) as { userId: string };
                 userId = payload.userId;
             } catch (err) {
-            }
-            if (userId) {
-                const amigos: Seguidor[] = await prisma.seguidor.findMany({
-                    where: { seguidorId: userId },
-                    select: { seguindoId: true }
-                }) || [];
-
-                const amigosIds = amigos.map(a => a.seguindoId);
-
-                const postsAmigos: Array<any> = await prisma.postagem.findMany({
-                    where: { usuarioId: { in: amigosIds } },
-                    orderBy: { criadoEm: 'desc' },
-                    take: 60,
-                    include: {
-                        _count: {
-                            select: { curtidas: true }
-                        }
-                    }
-                });
-
-                const postsUsuario: Array<any> = await prisma.postagem.findMany({
-                    where: { usuarioId: userId },
-                    orderBy: { criadoEm: 'desc' },
-                    take: 20,
-                    include: {
-                        _count: {
-                            select: { curtidas: true }
-                        }
-                    }
-                });
-
-                const posts = [...postsAmigos, ...postsUsuario].map(({ _count, ...rest }) => ({
-                    ...rest,
-                    qtCurtidas: _count.curtidas
-                }));
-
-                res.status(200).json(posts);
-                return;
+                console.error("Token inválido:", err);
             }
         }
-    const postsAleatorios = await prisma.$queryRaw<
-    Array<Postagem & { qtCurtidas: number }>
 
-    >   `SELECT p.*, 
-            (SELECT COUNT(*) 
-            FROM "CurtidaPost" c 
-            WHERE c."postagemId" = p.id) as "qtCurtidas"
-    FROM "Postagem" p
-    ORDER BY RANDOM()
-    LIMIT 80`;
+        let posts: Array<any> = [];
 
-        if (!postsAleatorios || postsAleatorios.length === 0) {
+        if (userId) {
+            const amigos: Seguidor[] = await prisma.seguidor.findMany({
+                where: { seguidorId: userId },
+                select: { seguindoId: true }
+            });
+            const amigosIds = amigos.map(a => a.seguindoId);
+
+            // Posts dos amigos
+            const postsAmigos = await prisma.postagem.findMany({
+                where: { usuarioId: { in: amigosIds } },
+                orderBy: { criadoEm: 'desc' },
+                take: 60,
+                include: {
+                    jogos: { include: { jogo: true } },
+                    _count: { select: { curtidas: true } }
+                }
+            });
+
+            const postsUsuario = await prisma.postagem.findMany({
+                where: { usuarioId: userId },
+                orderBy: { criadoEm: 'desc' },
+                take: 20,
+                include: {
+                    jogos: { include: { jogo: true } },
+                    _count: { select: { curtidas: true } }
+                }
+            });
+
+            posts = [...postsAmigos, ...postsUsuario].map(({ _count, jogos, ...rest }) => ({
+                ...rest,
+                jogos: jogos.map((pj: { jogo: any; }) => pj.jogo),
+                qtCurtidas: _count.curtidas
+            }));
+        } else {
+            posts = await prisma.$queryRaw<
+                Array<Postagem & { qtCurtidas: number }>
+            >`
+                SELECT p.*, 
+                    (SELECT COUNT(*) 
+                     FROM "CurtidaPost" c 
+                     WHERE c."postagemId" = p.id) as "qtCurtidas"
+                FROM "Postagem" p
+                ORDER BY RANDOM()
+                LIMIT 80
+            `;
+        }
+
+        if (!posts || posts.length === 0) {
             res.status(404).json({ message: 'Nenhum post encontrado' });
             return;
         }
-        res.status(200).json(postsAleatorios);
+
+        res.status(200).json(posts);
+
     } catch (error) {
-        res.status(500).json({ message: `Erro ao buscar posts ${error}` });
+        console.error(error);
+        res.status(500).json({ message: `Erro ao buscar posts: ${error}` });
     }
 };
 

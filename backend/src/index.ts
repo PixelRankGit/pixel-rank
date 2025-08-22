@@ -10,6 +10,11 @@ import genericRouter from './routes/generic.routes';
 
 import cors from 'cors';
 
+const allowedOrigins = [
+  'http://localhost:5173',           // dev local
+  'http://194.163.181.133:5173',    // IP público         // produção
+];
+
 const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
 
@@ -38,7 +43,19 @@ const app = express();
 
 popularBanco();
 
-app.use(cors());
+app.use(cors({
+    origin: function(origin, callback) {
+
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -47,6 +64,6 @@ app.use('/api', gamesRouter);
 app.use('/api', usersRouter);
 app.use('/api', loginRouter);
 app.use('/api', postRouter);
-app.use('/api', genericRouter)
+app.use('/api', genericRouter);
 
 export default app;

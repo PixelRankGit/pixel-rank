@@ -5,6 +5,11 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import cors from 'cors';
 
+const allowedOrigins = [
+  'http://localhost:5173',           // dev local
+  'http://194.163.181.133:5173',    // IP público         // produção
+];
+
 const opcoesSwagger = {
   swaggerDefinition: {
     openapi: '3.0.0',
@@ -28,10 +33,21 @@ import app from './index';
 
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://194.163.181.133:${port}`);
