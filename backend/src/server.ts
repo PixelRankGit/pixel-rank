@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 
@@ -27,6 +28,7 @@ import app from './index';
 const port = process.env.PORT || 3000;
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://194.163.181.133:${port}`);

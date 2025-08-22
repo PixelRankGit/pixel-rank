@@ -14,7 +14,7 @@ router.put('/games/:id', updateGameById, updateGameCache);
 
 router.delete('/games/:id', deleteGameById, deleteGameCache);
 
-module.exports = router;
+export default router;
 
 /**
  * @openapi

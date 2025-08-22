@@ -24,7 +24,7 @@ router.patch('/usuarios/:id/desativar', desativarUser);
 
 router.patch('/usuarios/:id/ativar', ativarUser);
 
-module.exports = router;
+export default router;
 
 /**
  * @openapi

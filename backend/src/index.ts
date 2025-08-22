@@ -1,9 +1,11 @@
-const express = require('express');
-const dotenv = require('dotenv');
+import express from 'express';
+import dotenv from 'dotenv';
 
-const gamesRouter = require('./routes/games.routes');
-const usersRouter = require('./routes/users.routes');
-const loginRouter = require('./routes/login.routes');
+import usersRouter from './routes/users.routes';
+import loginRouter from './routes/login.routes';
+import postRouter from './routes/post.routes';
+import gamesRouter from './routes/games.routes';
+import cookieParser from 'cookie-parser';
 
 const prisma = require('./prisma/prisma').default;
 const pegarJogosSteam = require('./scripts/pegarJogosSteam');
@@ -34,9 +36,11 @@ const app = express();
 popularBanco();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api', gamesRouter);
 app.use('/api', usersRouter);
 app.use('/api', loginRouter);
+app.use('/api', postRouter);
 
 export default app;
