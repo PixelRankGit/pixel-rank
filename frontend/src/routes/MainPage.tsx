@@ -1,5 +1,6 @@
 import { Post } from "../components/Post";
 import { usePosts } from "../hooks/usePosts";
+import { useNavigate } from "react-router";
 
 export const MainPage = (): React.JSX.Element => {
     const { posts, loading, error, setPosts } = usePosts();
@@ -17,6 +18,8 @@ export const MainPage = (): React.JSX.Element => {
       console.error(err);
     }
   };
+
+  const navigate = useNavigate();
 
   const handleDescurtir = async (postId: string) => {
     try {
@@ -45,6 +48,7 @@ export const MainPage = (): React.JSX.Element => {
           onDescurtir={handleDescurtir}
         />
       ))}
+      <button onClick={() => navigate('/login')}></button>
     </div>
   );
 };
