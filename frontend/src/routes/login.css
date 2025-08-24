@@ -1,0 +1,97 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+ background: radial-gradient(circle at center, 
+  #ff6ec7 0%, 
+  rgba(255,110,199,0.85) 20%, 
+  #ffd86b 50%, 
+  #7afcff 80%
+);
+  color: #0b1020;
+}
+
+.login-card {
+  width: 380px;
+  border-radius: 20px;
+  padding: 2rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.90));
+  box-shadow: 0 12px 30px rgba(11,16,32,0.25), 0 4px 10px rgba(122,252,255,0.08);
+  border: 1px solid rgba(11,16,32,0.06);
+}
+
+.login-hero {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.login-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7afcff, #ff6ec7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #082036;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.login-title {
+  font-size: 1.4rem;
+  margin: 0;
+  color: #082036;
+}
+.login-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(8,32,54,0.7);
+}
+
+.login-input {
+  border-radius: 12px;
+  border: 1px solid rgba(8,32,54,0.08);
+  padding: 0.6rem 0.75rem;
+}
+.login-input:focus {
+  outline: none;
+  box-shadow: 0 6px 20px rgba(122,252,255,0.18), 0 4px 12px rgba(255,110,199,0.08);
+  border-color: rgba(122,252,255,0.6);
+}
+
+.login-btn {
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, #ff6ec7, #ffd86b, #7afcff);
+  color: #081226;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 8px 20px rgba(122,252,255,0.14), inset 0 -6px 14px rgba(0,0,0,0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(11,16,32,0.20); }
+
+.login-footer {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.login-footer a { color: #ff6ec7; font-weight: 600; }
+
+@media (prefers-color-scheme: dark) {
+  .login-page { color: #e6f7ff; }
+  .login-card { background: linear-gradient(180deg, rgba(11,16,32,0.72), rgba(11,16,32,0.6)); border: 1px solid rgba(122,252,255,0.06); }
+  .login-title, .login-sub { color: #e6f7ff; }
+  .login-input { background: rgba(255,255,255,0.02); color: #e6f7ff; border: 1px solid rgba(255,255,255,0.06); }
+  .login-btn { color: #082036; }
+}
