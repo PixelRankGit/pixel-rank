@@ -16,7 +16,7 @@ export interface Post {
   jaCurtiu: boolean;
 }
 
-const socket = io("http://localhost:3000", { withCredentials: true });
+const socket = io("http://194.163.181.133:3000", { withCredentials: true });
 
 export const usePosts = () => {
     const [posts, setPosts] = useState<Post[]>([]);

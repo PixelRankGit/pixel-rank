@@ -47,7 +47,6 @@ export const Post: React.FC<PostProps> = ({
         {/* Conteúdo do post */}
         <p className="card-text">{conteudo}</p>
 
-        {/* Jogos relacionados */}
         {jogos.length > 0 && (
           <div className="d-flex flex-wrap mb-3">
             {jogos.map((jogo) => (
@@ -71,7 +70,6 @@ export const Post: React.FC<PostProps> = ({
           </div>
         )}
 
-        {/* Curtidas */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <span>{qtCurtidas} {qtCurtidas === 1 ? "curtida" : "curtidas"}</span>
           <button
