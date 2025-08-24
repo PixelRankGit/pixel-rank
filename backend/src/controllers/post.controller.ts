@@ -5,6 +5,8 @@ import { Optional } from "@prisma/client/runtime/library";
 import { Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 
+import io from '../server';
+
 export const getPosts = async (req: Request, res: Response): Promise<void> => {
     try {
         const token = req.cookies?.token;
@@ -55,21 +57,25 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
                 qtCurtidas: _count.curtidas
             }));
         } else {
-            posts = await prisma.$queryRaw<
-                Array<Postagem & { qtCurtidas: number }>
-            >`
-                SELECT p.*, 
-                    (SELECT COUNT(*) 
-                     FROM "CurtidaPost" c 
-                     WHERE c."postagemId" = p.id) as "qtCurtidas"
-                FROM "Postagem" p
-                ORDER BY RANDOM()
-                LIMIT 80
-            `;
+            posts = await prisma.postagem.findMany({
+        orderBy: { criadoEm: 'desc' }, 
+        take: 80,
+        include: {
+            jogos: { include: { jogo: true } },
+            _count: { select: { curtidas: true } },
+        },
+    });
+
+    posts = posts.map(({ _count, jogos, ...rest }) => ({
+        ...rest,
+        jogos: jogos.map((pj: { jogo: any }) => pj.jogo),
+        qtCurtidas: _count.curtidas,
+        jaCurtiu: false 
+    }));
         }
 
-        if (!posts || posts.length === 0) {
-            res.status(404).json({ message: 'Nenhum post encontrado' });
+        if (!posts) {
+            res.status(200).json([]);
             return;
         }
 
@@ -129,6 +135,8 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
             }));
             await prisma.postagemJogo.createMany({ data: postagensJogos });
         }
+
+        io.emit("novaPostagem", { postagem: novaPostagem });
 
         res.status(201).json(novaPostagem);
     } catch (error) {

@@ -2,6 +2,7 @@ import prisma from '../prisma/prisma';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Comentario, Postagem, Usuario } from '@prisma/client';
+import io from '../server';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -38,6 +39,10 @@ export const createComentario = async (req: Request, res: Response) => {
     const novoComentario = await prisma.comentario.create({
       data: { conteudo, usuarioId: userId, postagemId: postId },
       include: { usuario: true }
+    });
+
+    io.emit("novoComentario", {
+      postagemId: postId, comentario: novoComentario
     });
 
     res.status(201).json(novoComentario);
