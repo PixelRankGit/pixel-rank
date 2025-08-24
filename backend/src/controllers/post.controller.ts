@@ -10,7 +10,6 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
         const token = req.cookies?.token;
         let userId: string | undefined = undefined;
 
-        // Se houver token, tenta pegar o userId
         if (token) {
             try {
                 const secret = process.env.JWT_SECRET as string;
@@ -30,7 +29,6 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
             });
             const amigosIds = amigos.map(a => a.seguindoId);
 
-            // Posts dos amigos
             const postsAmigos = await prisma.postagem.findMany({
                 where: { usuarioId: { in: amigosIds } },
                 orderBy: { criadoEm: 'desc' },
@@ -75,7 +73,18 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        res.status(200).json(posts);
+        const postsSerializable = posts.map(post => ({
+            ...post,
+            id: post.id,           
+            usuarioId: post.usuarioId?.toString(),
+            qtCurtidas: Number(post.qtCurtidas),
+            jogos: post.jogos?.map((j: any) => ({
+                ...j,
+                id: j.id.toString()
+            }))
+        }));
+
+        res.status(200).json(postsSerializable);
 
     } catch (error) {
         console.error(error);

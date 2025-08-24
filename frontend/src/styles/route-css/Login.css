@@ -1,11 +1,31 @@
 html, body, #root {
+  font-family: JetBrains Mono, monospace;
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
 }
 
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./assets/fonts/JetBrainsMono-Regular.woff2') format('woff2')
+}
+
 .login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(circle at center,
+    #5c0d38 0%,
+    #3d0825 50%,
+    #1d0413 100%
+  );
+  color: #f0f0f0;
+}
+
+/* .login-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -18,7 +38,7 @@ html, body, #root {
   #7afcff 80%
 );
   color: #0b1020;
-}
+} */
 
 .login-card {
   width: 380px;
@@ -69,7 +89,7 @@ html, body, #root {
   border-color: rgba(122,252,255,0.6);
 }
 
-.login-btn {
+/* .login-btn {
   border-radius: 12px;
   padding: 0.6rem 1rem;
   background: linear-gradient(90deg, #ff6ec7, #ffd86b, #7afcff);
@@ -78,7 +98,19 @@ html, body, #root {
   border: none;
   box-shadow: 0 8px 20px rgba(122,252,255,0.14), inset 0 -6px 14px rgba(0,0,0,0.04);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+} */
+
+.login-btn {
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  background: linear-gradient(90deg, #b22784, #8a0e3f, #5c0d38);
+  color: #f0f0f0;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 0 20px rgba(178, 39, 132, 0.6), inset 0 -6px 14px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
 .login-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(11,16,32,0.20); }
 
 .login-footer {

@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './login.css';
+
+import '../styles/route-css/Login.css';
+
+import Icone from '../assets/iconeproj128.png';
+
 import axios from 'axios';
 
 export const Login = (): React.JSX.Element => {
@@ -46,7 +51,7 @@ export const Login = (): React.JSX.Element => {
     <div className="login-page">
       <div className="login-card">
         <div className="login-hero">
-          <div className="login-logo">PR</div>
+          <div className="login-logo">{Icone}</div>
           <div>
             <h3 className="login-title">PixelRank</h3>
             <p className="login-sub">Entre para continuar — é rápido e divertido</p>

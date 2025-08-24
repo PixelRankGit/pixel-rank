@@ -7,6 +7,7 @@ import postRouter from './routes/post.routes';
 import gamesRouter from './routes/games.routes';
 import cookieParser from 'cookie-parser';
 import genericRouter from './routes/generic.routes';
+import commentRouter from './routes/comment.routes';
 
 import cors from 'cors';
 
@@ -44,16 +45,7 @@ const app = express();
 popularBanco();
 
 app.use(cors({
-    origin: function(origin, callback) {
-
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: ['http://localhost:5173', 'http://194.163.181.133:5173'],
   credentials: true
 }));
 
@@ -65,5 +57,6 @@ app.use('/api', usersRouter);
 app.use('/api', loginRouter);
 app.use('/api', postRouter);
 app.use('/api', genericRouter);
+app.use('/api', commentRouter);
 
 export default app;

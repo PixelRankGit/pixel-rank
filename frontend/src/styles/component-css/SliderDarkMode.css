@@ -1,0 +1,9 @@
+.switch-modo .form-check-input:checked {
+    background-color: #B22222;
+    border-color: #a4b222;
+}
+
+.switch-modo .form-check-input:not(:checked) {
+    background-color: #cecccf36;
+    border-color: #aaaaaa;
+}

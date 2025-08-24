@@ -1,0 +1,41 @@
+body.dark-mode {
+  background-color: #121212; 
+  color: #eaeaea;
+}
+
+body.dark-mode .navbar {
+  background-color: #1e1e1e !important;
+}
+
+body.dark-mode .navbar .navbar-brand {
+  color: #ff4d4d !important; 
+}
+
+body.dark-mode .navbar .form-control {
+  background-color: #2a2a2a;
+  color: #eaeaea;
+  border-color: #444;
+}
+
+body.dark-mode .navbar .dropdown-menu {
+  background-color: #2a2a2a;
+  color: #eaeaea;
+}
+
+body.dark-mode .navbar .dropdown-item {
+  color: #eaeaea;
+}
+
+body.dark-mode .navbar .dropdown-item:hover {
+  background-color: #444;
+}
+
+body.dark-mode .card {
+  background-color: #1c1c1c;
+  border: 1px solid #333;
+  color: #eaeaea;
+}
+
+body.dark-mode .text-muted {
+  color: #bbb !important;
+}
