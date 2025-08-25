@@ -1,18 +1,22 @@
-const express = require('express');
-const dotenv = require('dotenv');
-
+import express from 'express';
+import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import cors from 'cors';
-import { Server } from 'socket.io'
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import app from './index';
+
+dotenv.config();
+
+const port = process.env.PORT || 3000;
 
 const allowedOrigins = [
-  'http://localhost:5173',           // dev local
-  'http://194.163.181.133:5173',    // IP público         // produção
+  'http://localhost:5173',        // Dev local
+  'http://194.163.181.133:5173',  // Produção
 ];
 
-
-
+// Swagger setup
 const opcoesSwagger = {
   swaggerDefinition: {
     openapi: '3.0.0',
@@ -22,26 +26,17 @@ const opcoesSwagger = {
       description: 'Documentação da API Pixel Rank',
     },
     servers: [
-      { url: 'http://localhost:3000' }
+      { url: `http://194.163.181.133:${port}` },
     ],
   },
   apis: ['./src/routes/*.ts'],
 };
-
 const swaggerSpec = swaggerJsdoc(opcoesSwagger);
 
-dotenv.config();
-
-import app from './index';
-import { createServer } from 'http';
-
-const port = process.env.PORT || 3000;
-
+// Middlewares
 app.use(cors({
-  origin: function(origin, callback) {
-
-    if (!origin) return callback(null, true);
-
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Requisições sem origin (Postman)
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -51,32 +46,39 @@ app.use(cors({
   credentials: true
 }));
 
-
-
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://194.163.181.133:${port}`);
-  console.log(`Swagger no link: http://194.163.181.133:3000/api-docs`);
-});
 
 const httpServer = createServer(app);
 
-// socket.io atrelado ao mesmo servidor
-const io = new Server(httpServer, {
+export const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
-    credentials: true
+    credentials: true,
   }
 });
 
-io.on("connection", (socket) => {
-  console.log("Novo cliente conectado:", socket.id);
+io.on('connection', (socket) => {
+  console.log('Novo cliente conectado:', socket.id);
 
-  // exemplo: quando receber um comentário novo
-  socket.on("novoComentario", (data) => {
-    io.emit("novoComentario", data);
+  socket.on('novoComentario', (data) => {
+    io.emit('novoComentario', data); 
   });
+
+  socket.on('novaPostagem', (data) => {
+    io.emit('novaPostagem', data);
+  });
+
+  socket.on("connect", () => console.log("Conectado", socket.id));
+  socket.on("disconnect", () => console.log("Desconectado"));
+  socket.on("novaPostagem", data => console.log("Novo post:", data));
+  socket.on("novoComentario", data => console.log("Novo comentário:", data));
 });
+
+httpServer.listen(port, () => {
+  console.log(`Servidor rodando em http://194.163.181.133:${port}`);
+  console.log(`Swagger no link: http://194.163.181.133:${port}/api-docs`);
+});
+
+
 
 export default io;

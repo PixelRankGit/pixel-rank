@@ -3,6 +3,11 @@ body.dark-mode {
   color: #eaeaea;
 }
 
+.dark-bg {
+  background-color: #121212; 
+  color: #fff; 
+}
+
 body.dark-mode .navbar {
   background-color: #1e1e1e !important;
 }

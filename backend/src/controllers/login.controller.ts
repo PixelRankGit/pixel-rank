@@ -32,7 +32,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         );
 
         res.cookie('token', token, {
-            httpOnly: true,
+            httpOnly: false,
             secure: false,
             sameSite: 'lax',
             maxAge: 24 * 60 * 60 * 1000

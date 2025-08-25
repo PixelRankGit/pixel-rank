@@ -35,9 +35,15 @@ export const Comentario: React.FC<ComentarioProps> = ({
           </div>
           {deletavel && (
             <button
-              className="btn btn-sm btn-outline-danger ms-2"
               onClick={() => onDeletar(id)}
               title="Deletar comentário"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#dc3545',
+                cursor: 'pointer',
+                padding: 0,
+              }}
             >
               <FaTrashAlt />
             </button>

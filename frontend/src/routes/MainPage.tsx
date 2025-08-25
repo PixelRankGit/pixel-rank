@@ -57,7 +57,6 @@ export const MainPage = (): React.JSX.Element => {
 
   const safePosts = posts || [];
 
-  // Embaralha posts para visualização aleatória
   const shuffledPosts = useMemo(() => {
     if (safePosts.length === 0) return [];
     return [...safePosts].sort(() => Math.random() - 0.5);
@@ -76,13 +75,22 @@ export const MainPage = (): React.JSX.Element => {
 
       <Container
         fluid="sm"
-        className="pt-5 mt-5 d-flex flex-column align-items-center gap-4"
-        style={{ maxWidth: "700px" }}
-      >
+          className={`pt-5 mt-5 d-flex flex-column align-items-center gap-4 ${modoEscuro ? 'dark-bg' : ''}`}
+          style={{ maxWidth: "700px" }}
+        >
         {shuffledPosts.length > 0 ? (
           shuffledPosts.map((post) => (
             <div key={post.id} className="w-100">
-              <Post {...post} onCurtir={handleCurtir} onDescurtir={handleDescurtir} />
+              <Post
+                  id={post.id}
+                  conteudo={post.conteudo}
+                  jogos={post.jogos}
+                  qtCurtidas={post.qtCurtidas}
+                  jaCurtiu={post.jaCurtiu}
+                  usuario={post.usuario.nome}
+                  onCurtir={handleCurtir}
+                  onDescurtir={handleDescurtir}
+                />
             </div>
           ))
         ) : (

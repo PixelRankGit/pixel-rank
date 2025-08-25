@@ -37,6 +37,7 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
                 take: 60,
                 include: {
                     jogos: { include: { jogo: true } },
+                    usuario: true,
                     _count: { select: { curtidas: true } }
                 }
             });
@@ -47,6 +48,7 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
                 take: 20,
                 include: {
                     jogos: { include: { jogo: true } },
+                    usuario: true,
                     _count: { select: { curtidas: true } }
                 }
             });
@@ -62,6 +64,7 @@ export const getPosts = async (req: Request, res: Response): Promise<void> => {
         take: 80,
         include: {
             jogos: { include: { jogo: true } },
+            usuario: true,
             _count: { select: { curtidas: true } },
         },
     });
@@ -136,7 +139,7 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
             await prisma.postagemJogo.createMany({ data: postagensJogos });
         }
 
-        io.emit("novaPostagem", { postagem: novaPostagem });
+        io.emit("novaPostagem", novaPostagem);
 
         res.status(201).json(novaPostagem);
     } catch (error) {

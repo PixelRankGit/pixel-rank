@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaHeart, FaRegHeart, FaPaperPlane, FaTrashAlt } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaPaperPlane } from "react-icons/fa";
 
 import { useComentarios, type ComentarioType } from "../hooks/useComentario";
+import { Comentario } from "./Comentario";
 import "../styles/component-css/Post.css";
+import { useAuth } from "../context/authContext";
 
 interface Jogo {
   id: string;
@@ -18,6 +20,7 @@ interface PostProps {
   jogos: Jogo[];
   qtCurtidas: number;
   jaCurtiu: boolean;
+  usuario: string;
   onCurtir: (postId: string) => void;
   onDescurtir: (postId: string) => void;
 }
@@ -30,23 +33,36 @@ export const Post: React.FC<PostProps> = ({
   jaCurtiu,
   onCurtir,
   onDescurtir,
+  usuario,
 }) => {
   const { comentarios = [], criarComentario, deletarComentario, loading } = useComentarios(id);
   const [novoComentario, setNovoComentario] = useState("");
+  const { userId: usuarioLogadoId } = useAuth();
 
   const handleEnviarComentario = () => {
-    if (novoComentario.trim()) {
-      criarComentario(novoComentario);
-      setNovoComentario("");
-    }
+    if (!novoComentario.trim()) return;
+    criarComentario(novoComentario);
+    setNovoComentario("");
   };
+
+  console.log("usuarioLogadoId:", usuarioLogadoId);
+  console.log("comentario.usuario.id:", comentarios.map(c => c.usuario.id));
+
+
+  // Evita duplicação de comentários recebidos via WebSocket
+  const comentariosFiltrados = comentarios.reduce<ComentarioType[]>((acc, cur) => {
+    if (!acc.some(c => c.id === cur.id)) acc.push(cur);
+    return acc;
+  }, []);
 
   return (
     <div className="card mb-3 shadow-sm post-card" style={{ borderRadius: "12px" }}>
       <div className="card-body">
-        {/* Conteúdo do post */}
+        {/* Nome do autor e conteúdo */}
+        <p className="fw-bold mb-1">{usuario}</p>
         <p className="card-text">{conteudo}</p>
 
+        {/* Jogos */}
         {jogos.length > 0 && (
           <div className="d-flex flex-wrap mb-3">
             {jogos.map((jogo) => (
@@ -70,6 +86,7 @@ export const Post: React.FC<PostProps> = ({
           </div>
         )}
 
+        {/* Curtidas */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <span>{qtCurtidas} {qtCurtidas === 1 ? "curtida" : "curtidas"}</span>
           <button
@@ -81,34 +98,23 @@ export const Post: React.FC<PostProps> = ({
           </button>
         </div>
 
-        {/* Lista de comentários */}
+        {/* Comentários */}
         <div className="comentarios-list mb-3">
           {loading && <small>Carregando comentários...</small>}
-          {(comentarios || []).map((c: ComentarioType) => (
-          <div
-            key={c.id}
-            className="card mb-2 shadow-sm comentario-card p-2"
-            style={{ borderRadius: "12px" }}
-          >
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>{c.usuario.nome}</strong>
-                <p className="mb-1 comentario-texto">{c.conteudo}</p>
-                <small className="text-muted">{new Date(c.criadoEm).toLocaleString()}</small>
-              </div>
-              <button
-                className="btn btn-sm btn-outline-danger ms-2"
-                onClick={() => deletarComentario(c.id)}
-                title="Deletar comentário"
-              >
-                <FaTrashAlt />
-      </button>
-    </div>
-  </div>
-))}
-
+          {comentariosFiltrados.map((c: ComentarioType) => (
+            <Comentario
+              key={c.id}
+              id={c.id}
+              conteudo={c.conteudo}
+              usuario={c.usuario}
+              criadoEm={c.criadoEm}
+              deletavel={c.usuario.id === usuarioLogadoId}
+              onDeletar={deletarComentario}
+            />
+          ))}
         </div>
 
+        {/* Input novo comentário */}
         <div className="d-flex mt-2">
           <input
             type="text"

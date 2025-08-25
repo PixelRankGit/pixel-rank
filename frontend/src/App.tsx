@@ -2,10 +2,12 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import './App.css'
 import { MainPage } from './routes/MainPage'
 import { Login } from './routes/Login'
+import { AuthProvider } from "./context/authContext";
 
 function App() {
 
     return (
+        <AuthProvider>
         <>
             <BrowserRouter>
                 <Routes>
@@ -14,6 +16,7 @@ function App() {
                 </Routes>
             </BrowserRouter>
         </>
+        </AuthProvider>
     )
 }
 
