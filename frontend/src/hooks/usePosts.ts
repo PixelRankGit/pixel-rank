@@ -40,7 +40,6 @@ export const usePosts = () => {
 
     fetchPosts();
 
-    // Conectar Socket.IO
     const socket = io("http://194.163.181.133:3000", { withCredentials: true });
 
     socket.on("novaPostagem", (data: { postagem: Post }) => {

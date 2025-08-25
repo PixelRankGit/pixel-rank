@@ -12,8 +12,8 @@ import commentRouter from './routes/comment.routes';
 import cors from 'cors';
 
 const allowedOrigins = [
-  'http://localhost:5173',           // dev local
-  'http://194.163.181.133:5173',    // IP público         // produção
+  'http://localhost:5173',        
+  'http://194.163.181.133:5173', 
 ];
 
 const prisma = require('./prisma/prisma').default;

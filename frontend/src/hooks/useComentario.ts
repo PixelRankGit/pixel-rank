@@ -11,14 +11,13 @@ export interface ComentarioType {
   criadoEm: string;
 }
 
-let socket: Socket | null = null; // singleton global
+let socket: Socket | null = null;
 
 export const useComentarios = (postId: string) => {
   const [comentarios, setComentarios] = useState<ComentarioType[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Buscar comentários
   const fetchComentarios = async () => {
     setLoading(true);
     setError(null);
@@ -37,7 +36,6 @@ export const useComentarios = (postId: string) => {
     }
   };
 
-  // Criar comentário
   const criarComentario = async (conteudo: string) => {
     if (!conteudo.trim()) return;
     setLoading(true);
@@ -63,7 +61,6 @@ export const useComentarios = (postId: string) => {
     }
   };
 
-  // Deletar comentário
   const deletarComentario = async (comentarioId: string) => {
     setLoading(true);
     setError(null);

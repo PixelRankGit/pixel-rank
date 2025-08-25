@@ -49,7 +49,6 @@ export const Post: React.FC<PostProps> = ({
   console.log("comentario.usuario.id:", comentarios.map(c => c.usuario.id));
 
 
-  // Evita duplicação de comentários recebidos via WebSocket
   const comentariosFiltrados = comentarios.reduce<ComentarioType[]>((acc, cur) => {
     if (!acc.some(c => c.id === cur.id)) acc.push(cur);
     return acc;
@@ -58,11 +57,9 @@ export const Post: React.FC<PostProps> = ({
   return (
     <div className="card mb-3 shadow-sm post-card" style={{ borderRadius: "12px" }}>
       <div className="card-body">
-        {/* Nome do autor e conteúdo */}
         <p className="fw-bold mb-1">{usuario}</p>
         <p className="card-text">{conteudo}</p>
 
-        {/* Jogos */}
         {jogos.length > 0 && (
           <div className="d-flex flex-wrap mb-3">
             {jogos.map((jogo) => (
@@ -86,7 +83,6 @@ export const Post: React.FC<PostProps> = ({
           </div>
         )}
 
-        {/* Curtidas */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <span>{qtCurtidas} {qtCurtidas === 1 ? "curtida" : "curtidas"}</span>
           <button
@@ -98,7 +94,6 @@ export const Post: React.FC<PostProps> = ({
           </button>
         </div>
 
-        {/* Comentários */}
         <div className="comentarios-list mb-3">
           {loading && <small>Carregando comentários...</small>}
           {comentariosFiltrados.map((c: ComentarioType) => (
@@ -114,7 +109,6 @@ export const Post: React.FC<PostProps> = ({
           ))}
         </div>
 
-        {/* Input novo comentário */}
         <div className="d-flex mt-2">
           <input
             type="text"

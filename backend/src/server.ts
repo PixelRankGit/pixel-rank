@@ -16,7 +16,6 @@ const allowedOrigins = [
   'http://194.163.181.133:5173',  // Produção
 ];
 
-// Swagger setup
 const opcoesSwagger = {
   swaggerDefinition: {
     openapi: '3.0.0',
@@ -33,10 +32,9 @@ const opcoesSwagger = {
 };
 const swaggerSpec = swaggerJsdoc(opcoesSwagger);
 
-// Middlewares
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Requisições sem origin (Postman)
+    if (!origin) return callback(null, true); 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {

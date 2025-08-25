@@ -8,7 +8,6 @@ const JWT_SECRET = process.env.JWT_SECRET as string
 
 router.post('/login', loginUser);
 
-// backend
 router.get('/api/me', (req: { cookies: { token: any; }; }, res: { status: (arg0: number) => { (): any; new(): any; json: { (arg0: { user: null; }): void; new(): any; }; }; json: (arg0: { userId: string; email: string; }) => void; }) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ user: null });

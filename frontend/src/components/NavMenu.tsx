@@ -14,6 +14,7 @@ interface MainNavbarProps {
 interface Jogo {
   id: string;
   nome: string;
+  steamId: string;
 }
 
 export const NavMenu = ({ search, setSearch, ligarModoNoturno }: MainNavbarProps) => {
@@ -41,17 +42,16 @@ export const NavMenu = ({ search, setSearch, ligarModoNoturno }: MainNavbarProps
       } catch (err) {
         console.error("Erro ao buscar sugestões:", err);
       }
-    }, 250); // 250ms após o usuário parar de digitar
+    }, 250);
 
     setDebounceTimer(timer);
 
-    // Limpeza caso search mude antes do timer disparar
     return () => clearTimeout(timer);
 
   }, [search]);
 
   const handleSelectSuggestion = (jogoId: string) => {
-    navigate(`/jogo/${jogoId}`);
+    window.open(`https://store.steampowered.com/app/${jogoId}`, "_blank");
     setSearch("");
     setSuggestions([]);
   };
@@ -82,7 +82,7 @@ export const NavMenu = ({ search, setSearch, ligarModoNoturno }: MainNavbarProps
                 {suggestions.map((jogo) => (
                   <Dropdown.Item 
                     key={jogo.id} 
-                    onClick={() => handleSelectSuggestion(jogo.id)}
+                    onClick={() => handleSelectSuggestion(jogo.steamId)}
                   >
                     {jogo.nome}
                   </Dropdown.Item>
