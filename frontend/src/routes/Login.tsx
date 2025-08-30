@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
+import { FaEye } from 'react-icons/fa'
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import '../styles/route-css/Login.css';
@@ -14,6 +16,8 @@ export const Login = (): React.JSX.Element => {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [error, setError] = useState('');
+    const [verSenha, setVerSenha] = useState(false);
+
     const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +33,14 @@ export const Login = (): React.JSX.Element => {
     };
     checkAuth();
   }, [navigate]);
+
+  const verSenhaF = (): void => {
+    setVerSenha((prev) => {
+    const novoValor = !prev;
+    document.getElementById('senha')?.setAttribute('type', novoValor ? 'text' : 'password');
+    return novoValor;
+  });
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,19 +82,46 @@ export const Login = (): React.JSX.Element => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              
             />
           </div>
 
           <div className="mb-3">
-            <label htmlFor="senha" className="form-label">Senha</label>
-            <input
-              type="password"
-              className="form-control login-input"
-              id="senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required
-            />
+            <label id='labelsenha' htmlFor="senha" className="form-label">Senha</label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={verSenha ? "text" : "password"}
+                className="form-control login-input"
+                id="senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                style={{ paddingRight: '44px' }}
+              />
+              <button
+                type='button'
+                onClick={() => setVerSenha(!verSenha)}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 0,
+                  height: '100%',
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#b22784',
+                  fontWeight: 700,
+                  padding: '0 12px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                tabIndex={-1}
+                aria-label={verSenha ? 'Ocultar senha' : 'Ver senha'}
+              >
+                <FaEye />
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="login-btn w-100">Entrar</button>

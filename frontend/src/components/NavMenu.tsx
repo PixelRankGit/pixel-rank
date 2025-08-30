@@ -59,7 +59,7 @@ export const NavMenu = ({ search, setSearch, ligarModoNoturno }: MainNavbarProps
   return (
     <Navbar bg="light" expand="lg" fixed="top" className="shadow-sm" style={{ backgroundColor: "#fff" }}>
       <Container fluid>
-        <Navbar.Brand className="fw-bold" style={{ color: "#b22222ff" }}>
+        <Navbar.Brand className="fw-bold" style={{ color: "#b22222ff", cursor: "pointer" }} onClick={() => navigate('/')}>
           Pixel Rank
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-navbar" />
