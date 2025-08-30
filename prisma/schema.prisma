@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id            String        @id @default(uuid())
+  nome          String        @unique
+  email         String        @unique
+  senha         String
+  ativo         Boolean?      @default(true)
+  posts         Postagem[]
+  listas        ListaJogo[]
+  curtidas      CurtidaPost[]
+  seguindo      Seguidor[]    @relation("Seguindo")
+  seguidores    Seguidor[]    @relation("Seguidores")
+  comentarios   Comentario[]
+  naoAtivoDesde DateTime?
+  criadoEm      DateTime      @default(now())
+  atualizadoEm  DateTime      @updatedAt
+
+  @@index([nome])
+  @@index([id])
+}
+
+model Seguidor {
+  id          String   @id @default(uuid())
+  seguidorId  String
+  seguindoId  String
+
+  seguidor    Usuario  @relation("Seguindo", fields: [seguidorId], references: [id])
+  seguindo    Usuario  @relation("Seguidores", fields: [seguindoId], references: [id])
+
+  @@unique([seguidorId, seguindoId])
+}
+
+model Postagem {
+  id          String         @id @default(uuid())
+  conteudo    String
+  usuario     Usuario        @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  criadoEm    DateTime       @default(now())
+  atualizadoEm DateTime      @updatedAt
+  comentarios Comentario[]   // Comentários do post
+  jogos       PostagemJogo[]
+  curtidas    CurtidaPost[]
+
+  @@index([id])
+}
+
+model Comentario {
+  id          String    @id @default(uuid())
+  conteudo    String
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  postagem    Postagem  @relation(fields: [postagemId], references: [id])
+  postagemId  String
+  criadoEm    DateTime  @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@index([postagemId])
+  @@index([usuarioId])
+}
+
+model CurtidaPost {
+  id          String      @id @default(uuid())
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  postagem    Postagem    @relation(fields: [postagemId], references: [id])
+  postagemId  String
+
+  @@unique([usuarioId, postagemId])
+}
+
+model Jogo {
+  id            String           @id @default(uuid())
+  nome          String
+  steamId       Int              @unique
+  caminhoImagem String
+  postagens     PostagemJogo[]
+  listas        ListaJogoJogo[]
+  criadoEm      DateTime         @default(now())
+  atualizadoEm  DateTime         @updatedAt
+
+  @@index([nome])
+  @@index([id])
+}
+
+model ListaJogo {
+  id          String         @id @default(uuid())
+  nome        String
+  usuario     Usuario        @relation(fields: [usuarioId], references: [id])
+  usuarioId   String
+  jogos       ListaJogoJogo[]
+  criadoEm    DateTime       @default(now())
+  atualizadoEm DateTime      @updatedAt
+}
+
+model PostagemJogo {
+  id          String      @id @default(uuid())
+  postagem    Postagem    @relation(fields: [postagemId], references: [id])
+  postagemId  String
+  jogo        Jogo        @relation(fields: [jogoId], references: [id])
+  jogoId      String
+
+  @@unique([postagemId, jogoId])
+}
+
+model ListaJogoJogo {
+  id           String      @id @default(uuid())
+  listaJogo    ListaJogo   @relation(fields: [listaJogoId], references: [id])
+  listaJogoId  String
+  jogo         Jogo        @relation(fields: [jogoId], references: [id])
+  jogoId       String
+
+  @@unique([listaJogoId, jogoId])
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  senha     String
+  criadoEm  DateTime @default(now())
+}
